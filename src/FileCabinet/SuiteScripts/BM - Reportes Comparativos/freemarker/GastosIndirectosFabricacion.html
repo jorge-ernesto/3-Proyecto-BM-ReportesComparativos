@@ -31,11 +31,14 @@
     <div class="bm-container">
         <div class="bm-container-body">
             <table class="bm-report-table">
+
+                <!-- CABECERA -->
                 <thead>
                     <tr>
                         <th>
                             <span>Concepto</span>
                         </th>
+
                         <#list context.headers as header>
                             <th class="right">
                                 ${header.current.text}
@@ -54,6 +57,7 @@
                                 <b style="text-transform: none;">Var %</b>
                             </th>
                         </#list>
+
                         <th class="right">
                             ${context.summary.current.text}
                             <br>
@@ -72,18 +76,24 @@
                         </th>
                     </tr>
                 </thead>
-                <tbody>
+
+                <!-- CUERPO -->
+                <tbody id="body_id">
                     <#list context.centers as center>
+                        <!-- TOTALES -->
                         <tr bm-parent="${center.id}">
-                            <td><i class="minus square icon" onclick="groupLines(this)"
+                            <!-- CENTROS DE COSTO - 2211 INYECTABLES U OTROS -->
+                            <td id=`tr_td_${center.id}`><i class="minus square icon" onclick="groupLines(this)"
                                     bm-type="group"></i>${center.name}
                             </td>
+
+                            <!-- TOTALES POR CENTRO DE COSTO Y MESES (ACTUAL VS ULTIMO) -->
                             <#list context.headers as header>
                                 <#assign current=center.period[header.current.id] />
                                 <#assign last=center.period[header.last.id] />
                                 <#assign var=current - last />
                                 <#assign p_var=generateVariationPercent(current,last) />
-                                <td class="right">
+                                <td class="right" id=`one_tr_td_${center.id}`>
                                     <div class="title hide">
                                         <span class="bm-lbl" bm-period="${header.current.id}" bm-concept=""
                                             bm-center="${center.id}">
@@ -91,7 +101,8 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td class="right">
+
+                                <td class="right" id=`two_tr_td_${center.id}`>
                                     <div class="title hide">
                                         <span class="bm-lbl" bm-period="${header.last.id}" bm-concept=""
                                             bm-center="${center.id}">
@@ -99,30 +110,38 @@
                                         </span>
                                     </div>
                                 </td>
-                                <td class="right">
+
+                                <td class="right" id=`three_tr_td_${center.id}`>
                                     <div class="title hide">${var}</div>
                                 </td>
-                                <td class="right">
+
+                                <td class="right" id=`four_tr_td_${center.id}`>
                                     <div class="title hide">${p_var?string.percent}</div>
                                 </td>
                             </#list>
-                            <td class="right">
+
+                            <!-- TOTALES POR CENTRO DE COSTO Y AÑOS (ACTUAL VS ULTIMO) -->
+                            <td class="right" id=`five_tr_td_${center.id}`>
                                 <div class="title hide">${center.current}</div>
                             </td>
-                            <td class="right">
+
+                            <td class="right" id=`six_tr_td_${center.id}`>
                                 <div class="title hide">${center.last}</div>
                             </td>
+
                             <#assign current=center.current />
                             <#assign last=center.last />
                             <#assign var=current - last />
                             <#assign p_var=generateVariationPercent(current,last) />
-                            <td class="right">
+                            <td class="right" id=`seven_tr_td_${center.id}`>
                                 <div class="title hide">${var}</div>
                             </td>
-                            <td class="right">
+                            <td class="right" id=`eight_tr_td_${center.id}`>
                                 <div class="title hide">${p_var?string.percent}</div>
                             </td>
                         </tr>
+
+                        <!-- DETALLE (POR DEFECTO OCULTOS) -->
                         <#list center.concepts as concept>
                             <tr bm-child="${center.id}">
                                 <td style="padding-left:15px">${concept.name}
@@ -165,6 +184,8 @@
                                 <td class="right">${p_var?string.percent}</td>
                             </tr>
                         </#list>
+
+                        <!-- TOTALES (POR DEFECTO OCULTOS) -->
                         <tr bm-child="${center.id}" class="summary-total">
                             <td></i>Total</td>
                             <#list context.headers as header>
@@ -196,6 +217,8 @@
                             <td class="right">${p_var?string.percent}</td>
                         </tr>
                     </#list>
+
+                    <!-- TOTAL GENERAL -->
                     <tr class="summary-total">
                         <td>Report Comparativo (Total)</td>
                         <#list context.headers as header>
@@ -218,6 +241,7 @@
                         <td class="right">${p_var?string.percent}</td>
                     </tr>
                 </tbody>
+
             </table>
         </div>
     </div>
@@ -238,11 +262,12 @@
         })
     }
 
+    // * Audit: Funcion que colapsa y expande
     function groupLines(e, _collapse) {
 
         let row = e.parentNode.parentNode;
         let groupId = row.getAttribute('bm-parent');
-        let collapse = _collapse ? _collapse : row.getAttribute('collapse');
+        let collapse = _collapse ? _collapse : row.getAttribute('collapse'); // Al iniciar considera por defecto que esta expandido
 
         let children = document.querySelectorAll('[bm-child="' + groupId + '"]')
         let titleColumns = row.querySelectorAll(`.title`);
@@ -258,7 +283,7 @@
                 current.classList.add('hide');
             })
 
-        } else {
+        } else { // collapse == 'F', es decir esta expandido
             e.classList.remove('minus');
             e.classList.add('plus');
             row.setAttribute('collapse', 'T');

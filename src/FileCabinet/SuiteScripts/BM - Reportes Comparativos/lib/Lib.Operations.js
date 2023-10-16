@@ -5,20 +5,20 @@ define(['N', './Lib.Basic'],
 
     function (N, Basic) {
 
-        const { search, log, format } = N;
+        const { search, log, format } = N; // * Audit: Nueva libreria format
 
         function createAccountingPeriodYear() {
 
             let result = [];
-            let currentDate = format.format({ type: format.Type.DATE, value: new Date() });
+            let currentDate = format.format({ type: format.Type.DATE, value: new Date() }); // * Audit: Obtiene fecha actual
 
             search.create({
-                type: 'accountingperiod',
+                type: 'accountingperiod', // * Audit: Para replicar esta busqueda hacer una prueba creando busqueda "Período contable"
                 filters:
                     [
                         ["isyear", "is", "T"],
                         'AND',
-                        ['startdate', 'onorbefore', currentDate]
+                        ['startdate', 'onorbefore', currentDate] // * Audit: Todo lo anterior a la fecha actual
                     ],
                 columns: [
                     { name: 'startdate', sort: 'DESC', label: 'start' },
