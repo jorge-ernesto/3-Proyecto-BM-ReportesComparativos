@@ -21,14 +21,14 @@ define(['N', '../lib/Lib.Operations'],
                 let yearValue = scriptContext.currentRecord.getValue(FIELDS.year);
                 let monthField = scriptContext.currentRecord.getField(FIELDS.month);
 
-                if (viewValue == 'D' || viewValue == 'A') {
+                if (viewValue == 'D' || viewValue == 'A') { // * Audit: Vista - Detallada, Mensual
                     monthField.isDisabled = false;
                     monthField.removeSelectOption({ value: null })
                     Operations.createAccountingPeriodByYear(yearValue).forEach(node => {
                         monthField.insertSelectOption({ value: node.id, text: node.text });
                     });
                 }
-                else {
+                else { // * Audit: Vista - Anual, Trimestral
                     monthField.isDisabled = true;
                     monthField.removeSelectOption({ value: null })
                 }

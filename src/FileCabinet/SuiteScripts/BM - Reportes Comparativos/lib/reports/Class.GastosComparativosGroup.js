@@ -6,10 +6,10 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
     function (N, ReportRenderer, Basic, Operations) {
 
         const REPORTS = {
-            1: 'GASTOS_INDIRECTOS',
-            2: 'GASTOS_ADM_OP',
-            3: 'GASTOS_ADM_OF',
-            4: 'GASTOS_VENTAS'
+            1: 'GASTOS_INDIRECTOS', // * Audit: Gastos Indirectos de Fabricación
+            2: 'GASTOS_ADM_OP', // * Audit: Comparativo Gastos de Administracion Operacion
+            3: 'GASTOS_ADM_OF', // * Audit: Comparativo Gastos de Administracion Oficina
+            4: 'GASTOS_VENTAS' // * Audit: Comparativo Gastos de Venta
         }
 
         const { search, log } = N;
@@ -85,7 +85,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                 let periodName = node.getText('period')
                 let amount = Number(node.getValue('amount'));
 
-                resultTransaction.push({
+                resultTransaction.push({ // * Audit: Obtener informacion en busquedas
                     class: { id: classId, name: className },
                     concept: concept,
                     period: periodId,
@@ -147,7 +147,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                     log.debug('node', node)
                 }
 
-                resultTransaction.push({
+                resultTransaction.push({ // * Audit: Obtener informacion en busquedas
                     class: { id: classId, name: className },
                     concept: concept,
                     period: periodId,
@@ -209,7 +209,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                 let periodName = node.getText('period')
                 let amount = Number(node.getValue('amount'));
 
-                resultTransaction.push({
+                resultTransaction.push({ // * Audit: Obtener informacion en busquedas
                     class: { id: classId, name: className },
                     concept: concept,
                     period: periodId,
@@ -292,7 +292,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
 
                 let amount = Number(node.getValue('amount'));
 
-                resultTransaction.push({
+                resultTransaction.push({ // * Audit: Obtener informacion en busquedas
                     class: { id: classId, name: className },
                     concept: concept,
                     period: periodId,
@@ -307,6 +307,10 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
 
             constructor(input) {
 
+                // * Audit: Recibimos parametros
+                log.audit('Recibimos parametros en el constructor de la clase "GastosComparativosGroup"', input);
+
+                // * Audit: Enviamos parametros con super
                 if (input.xls == 'T') {
                     super(Basic.Data.Report.GASTOS_COMPARATIVOS_XLS);
                 } else {
@@ -314,6 +318,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                 }
                 log.debug('Template', 'Was Loading....');
 
+                // * Audit: Uso de parametros
                 let { subsidiary, view, year, month, decimal, report } = input;
                 hasDecimal = decimal == 'T' || decimal == true ? 'F' : 'T';
 
@@ -321,6 +326,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
 
                 classes = Basic.Classes[selectReport];
 
+                // * Audit: descriptionMap
                 let descriptionMap = {
                     report: '',
                     view: '',
@@ -350,7 +356,9 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                 let currentYearContext = null;
                 let lastYearContext = null;
 
+                // * Audit: createAccountingPeriodYear
                 let yearList = Operations.createAccountingPeriodYear();
+                log.audit('yearList', yearList);
 
                 let currentPositionYear = -1;
 
@@ -372,6 +380,10 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
 
                 descriptionMap.year = currentYearContext.text;
 
+                // * Audit: descriptionMap
+                log.audit('descriptionMap', descriptionMap);
+
+                // * Audit: Vista - Detallada
                 if (view == Basic.Data.View.DETAILED) {
                     descriptionMap.view = 'Detallado';
                     // currentPeriods = Operations.createAccountingPeriodByYear(currentYear).reverse();
@@ -395,9 +407,13 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                         }
 
                     }
+                    log.audit('currentPeriods', currentPeriods);
+                    log.audit('lastPeriods', lastPeriods);
+
                     /*****************************************************************/
 
                     let totalPeriods = currentPeriods.map(node => { return node.id });
+                    log.audit('totalPeriods', totalPeriods);
 
                     transactionList = createTransactionDetailsByPeriod(totalPeriods, subsidiary);
 
@@ -406,13 +422,19 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                     // );
 
                     totalPeriods = lastPeriods.map(node => { return node.id });
+                    log.audit('totalPeriods', totalPeriods);
 
+                    // * Audit: Uso de concat para unir array con json dentro
+                    // * Audit: let data1 = [{"id":"1","text":"ene 2022"}]
+                    // * Audit: let data2 = [{"id":"2","text":"ene 2023"}]
+                    // * Audit: data1.concat(data2);
                     transactionList = transactionList.concat(createTransactionDetailsByPeriod(totalPeriods, subsidiary));
 
                     // transactionList = transactionList.concat(createTransactionDetailsByPeriod(totalPeriods.slice(6, 12), subsidiary));
 
                 }
 
+                // * Audit: Vista - Trimestral
                 if (view == Basic.Data.View.QUARTERLY) {
                     descriptionMap.view = 'Trimestral';
                     currentPeriods = Operations.createAccountingQuarterByYear(currentYear).reverse();
@@ -420,6 +442,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                     transactionList = createTransactionDetailsByQuarter([currentYear, lastYear], subsidiary);
                 }
 
+                // * Audit: Vista - Mensual
                 if (view == Basic.Data.View.MONTHLY) {
                     descriptionMap.view = 'Mensual';
 
@@ -453,6 +476,7 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                     transactionList = transactionList.concat(createTransactionDetailsByPeriod(totalPeriods, subsidiary));
                 }
 
+                // * Audit: Vista - Anual
                 if (view == Basic.Data.View.ANNUAL) {
                     descriptionMap.view = 'Anual';
 
@@ -626,6 +650,20 @@ define(['N', './Class.ReportRenderer', '../Lib.Basic', '../Lib.Operations'],
                 });
 
                 log.debug('summaryMap', summaryMap);
+
+                // * Audit: Envio de data
+                log.audit('', 'Envio de data');
+                log.audit('headers', headersList); // * Audit: Replicacion de reporte, array necesario
+                log.audit('total', totalMap); // * Audit: Replicacion de reporte, array necesario
+                log.audit('centers', arrayCenters); // * Audit: Replicacion de reporte, array necesario
+                log.audit('summary', summaryMap); // * Audit: Replicacion de reporte, array necesario
+                log.audit('decimal', decimal == 'T' || decimal == true ? 'T' : 'F');
+                log.audit('description', descriptionMap);
+                log.audit('', 'Cerrar Envio de data');
+
+                // * Audit: Verificar centers
+                // throw { headersList, totalMap, arrayCenters, summaryMap };
+
                 this.addInput('headers', headersList);
                 this.addInput('total', totalMap);
                 this.addInput('centers', arrayCenters);

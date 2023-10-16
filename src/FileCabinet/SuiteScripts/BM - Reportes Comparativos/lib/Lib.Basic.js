@@ -132,7 +132,7 @@ define(['N'],
 
 
         return {
-            CustomSearch,
+            CustomSearch, // * Audit: Util
             Data,
             Template,
             Account: {

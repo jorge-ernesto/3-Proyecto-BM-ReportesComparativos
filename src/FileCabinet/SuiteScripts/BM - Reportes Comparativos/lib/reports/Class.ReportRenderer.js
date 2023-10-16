@@ -11,8 +11,13 @@ define(['N', '../Lib.Basic'],
 
             constructor(report) {
 
+                // * Audit: Recibimos parametros
+                log.audit('Recibimos parametros en el constructor de la clase "ReportRenderer"', report);
+
+                // * Audit: Elegimos template HTML o Excel
                 let templateName = Basic.Template[report];
 
+                // * Audit: Crear Excel - Contenido dinamico
                 let basicFormat = `
                 <#assign context =data.context?eval/>
                 `
@@ -31,11 +36,15 @@ define(['N', '../Lib.Basic'],
 
             print() {
                 let context = this.data;
+
+                // * Audit: Enviar datos a Excel
                 this.renderer.addCustomDataSource({
                     alias: 'data',
                     format: render.DataSource.OBJECT,
                     data: { context: JSON.stringify(context) }
                 })
+
+                // * Audit: Crear XLS
                 return this.renderer.renderAsString();
             }
         }

@@ -9,7 +9,7 @@ define(['N'],
 
         const LANGUAGE = {
             'es': 2,
-            'sp': 2,
+            'sp': 2, // * Audit: Que idioma es?
             'en': 1
         }
 
@@ -32,6 +32,7 @@ define(['N'],
             ['custpage_report_button_visualize', 'Generate', 'Generar'],
             ['custpage_report_button_export_xls', 'Export', 'Exportar']
         ]
+        log.audit('LABELS', LABELS);
 
 
         class DAO {
@@ -39,7 +40,8 @@ define(['N'],
             constructor() {
 
                 let currentLanguage = runtime.getCurrentUser().getPreference('language');
-                currentLanguage = LANGUAGE[currentLanguage];
+                log.audit('currentLanguage', currentLanguage); // * Audit: Me aparece 'es_AR'
+                currentLanguage = LANGUAGE[currentLanguage]; // * Audit: currentLanguage = LANGUAGE[currentLanguage.substring(0, 2)];
 
                 if (!currentLanguage) currentLanguage = LANGUAGE['es'];
 
@@ -55,7 +57,7 @@ define(['N'],
 
             }
 
-            get(id) {
+            get(id) { // * Audit: Muestra los labels del formulario en 'es' o 'en'
                 return this.translate[id] ? this.translate[id] : this.undefined;
             }
 

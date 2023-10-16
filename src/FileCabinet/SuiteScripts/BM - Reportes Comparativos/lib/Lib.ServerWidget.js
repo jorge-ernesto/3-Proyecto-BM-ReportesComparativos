@@ -8,12 +8,15 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
         const { redirect, log, runtime } = N;
         const { serverWidget } = N.ui;
 
+        // * Audit: JSON para almacenar información
         var formContext = {
             dao: null,
             form: null,
             params: {}
         }
+        log.audit('formContext', formContext);
 
+        // * Audit: JSON para almacenar información
         const SUITELET_RECORD = {
             title: 'custpage_report_title',
             titleDetails: 'custpage_reporte_title_deails',
@@ -34,7 +37,9 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
                 export: 'custpage_report_button_export_xls'
             }
         }
+        log.audit('SUITELET_RECORD', SUITELET_RECORD);
 
+        // * Audit: JSON para almacenar información
         const STATIC_DATA = {
             reports: {
                 1: 'Gastos Indirectos de Fabricación',
@@ -49,6 +54,7 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
                 'D': 'Mensual'
             }
         }
+        log.audit('STATIC_DATA', STATIC_DATA);
 
         function setInput(params) {
             formContext.params = params;
@@ -57,6 +63,7 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
 
         function selectedReport() {
             log.debug('SelectedReport', formContext.params.report);
+            log.audit('SelectedReport', formContext.params.report);
             return Number(formContext.params.report);
         }
 
@@ -65,12 +72,12 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
         */
         function createReportForm() {
 
-            formContext.dao = new DAO();
-            formContext.form = serverWidget.createForm({
-                title: formContext.dao.get(SUITELET_RECORD.title)
+            formContext.dao = new DAO(); // * Audit: Data Access Object para obtener la traduccion de strings ---- Almacena informacion dentro de formContext.dao
+            formContext.form = serverWidget.createForm({ // * Audit: Creamos formulario para mostrar en el reporte ---- Almacena informacion dentro de formContext.form
+                title: formContext.dao.get(SUITELET_RECORD.title) // * Audit: La funcion "get" obtiene la renderizacion del string
             });
 
-            formContext.form.addSubmitButton({
+            formContext.form.addSubmitButton({ // * Audit: Agregamos el boton al formulario
                 label: formContext.dao.get(SUITELET_RECORD.buttons.generate)
             });
         }
@@ -91,14 +98,18 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
          */
         function createMainGroup() {
 
+            // * Audit: GRUPO DE CAMPOS
+            // * Audit: Creamos grupo de campos
             let group = formContext.form.addFieldGroup({
                 id: SUITELET_RECORD.groups.main,
                 label: formContext.dao.get(SUITELET_RECORD.groups.main),
             });
 
-            group.isBorderHidden = true;
+            group.isBorderHidden = true; // * Audit: Me gustaria aclarar para que es esto, comente y parece que no hace nada
             // group.isSingleColumn = true;
 
+            // * Audit: COMBO PRESENTACION
+            // * Audit: Creamos combo Presentacion
             let reportField = formContext.form.addField({
                 id: SUITELET_RECORD.fields.report,
                 label: formContext.dao.get(SUITELET_RECORD.fields.report),
@@ -106,6 +117,7 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
                 container: SUITELET_RECORD.groups.main
             });
 
+            // * Audit: Agregamos informacion al combo Presentacion
             reportField.addSelectOption({ value: '', text: '' });
             for (var key in STATIC_DATA.reports) {
                 reportField.addSelectOption({ value: key, text: STATIC_DATA.reports[key] })
@@ -113,16 +125,20 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
             reportField.isMandatory = true;
             reportField.updateBreakType({ breakType: 'STARTCOL' })
 
+            // * Audit: Seteamos variable enviada por URL al combo Presentacion
             if (formContext.params.report) {
                 reportField.defaultValue = formContext.params.report;
             }
 
+            // * Audit: CHECKBOX SIN DECIMALES
+            // * Audit: Creamos checkbox Sin Decimales
             let decimalField = formContext.form.addField({
                 id: SUITELET_RECORD.fields.decimal,
                 label: formContext.dao.get(SUITELET_RECORD.fields.decimal),
                 type: 'checkbox',
                 container: SUITELET_RECORD.groups.main
             });
+            // * Audit: Seteamos variable enviada por URL al checkbox Sin Decimales
             if (formContext.params.decimal) {
                 decimalField.defaultValue = formContext.params.decimal;
             }
@@ -134,11 +150,15 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
          */
         function createCriteriaGroup() {
 
+            // * Audit: GRUPO DE CAMPOS
+            // * Audit: Creamos grupo de campos
             let group = formContext.form.addFieldGroup({
                 id: SUITELET_RECORD.groups.criteria,
                 label: formContext.dao.get(SUITELET_RECORD.groups.criteria),
             });
 
+            // * Audit: COMBO SUBSIDIARIA
+            // * Audit: Creamos combo Subsidiaria
             // Subsidiary Field
             let subsidiaryField = formContext.form.addField({
                 id: SUITELET_RECORD.fields.subsidiary,
@@ -150,10 +170,13 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
             subsidiaryField.updateBreakType({ breakType: 'STARTCOL' })
             subsidiaryField.isMandatory = true;
 
+            // * Audit: Seteamos variable enviada por URL al combo Subsidiaria
             if (formContext.params.subsidiary) {
                 subsidiaryField.defaultValue = formContext.params.subsidiary;
             }
 
+            // * Audit: COMBO VISTA
+            // * Audit: Creamos combo Vista
             // Viewer Field
             let viewFormField = formContext.form.addField({
                 id: SUITELET_RECORD.fields.view,
@@ -167,10 +190,13 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
                 viewFormField.addSelectOption({ value: key, text: STATIC_DATA.viewForm[key] })
             }
 
+            // * Audit: Seteamos variable enviada por URL al combo Vista
             if (formContext.params.view) {
                 viewFormField.defaultValue = formContext.params.view;
             }
 
+            // * Audit: COMBO AÑO
+            // * Audit: Creamos combo Año
             // Period Year Field
             let yearField = formContext.form.addField({
                 id: SUITELET_RECORD.fields.year,
@@ -187,10 +213,13 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
                 yearField.addSelectOption({ value: node.id, text: node.text });
             });
 
+            // * Audit: Seteamos variable enviada por URL al combo Año
             if (formContext.params.year) {
                 yearField.defaultValue = formContext.params.year;
             }
 
+            // * Audit: COMBO MES
+            // * Audit: Creamos combo Mes
             //Period Month Field
             let monthField = formContext.form.addField({
                 id: SUITELET_RECORD.fields.month,
@@ -207,9 +236,11 @@ define(['N', './Lib.Dao', './Lib.Render', './Lib.Operations'],
                 selectedYear = selectedYear ? selectedYear : yearArray[0].id;
 
                 if (selectedYear) {
+                    // * Audit: Agregamos informacion al combo Mes
                     Operations.createAccountingPeriodByYear(selectedYear).forEach(node => {
                         monthField.addSelectOption({ value: node.id, text: node.text });
                     });
+                    // * Audit: Seteamos variable enviada por URL al combo Mes
                     if (formContext.params.month) {
                         monthField.defaultValue = formContext.params.month;
                     }
