@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #stickytab {
+            /* Outer container */
+            display: inline-block;
+            /* (1) */
+            height: 20em;
+            /* (1) */
+            width: 20em;
+            /* (1) */
+            overflow: auto;
+            /* (1) */
+            margin: 0.2em;
+            min-height: 6em;
+            min-width: 6em;
+            resize: both;
+            font-family: 'Arial', sans-serif;
+        }
+
+        #stickytab table {
+            /* Table */
+            border-collapse: separate;
+            /* (3) Default value */
+            border-spacing: 0;
+            /* (3) */
+        }
+
+        #stickytab table tr * {
+            /* Cells */
+            border: black solid 1px;
+            /* (3) */
+            border-top: none;
+            /* (3) */
+            border-left: none;
+            /* (3) */
+            /* padding: 0.2em; */
+        }
+
+        #stickytab table thead tr:first-child th {
+            /* Cells of the first row */
+            position: sticky;
+            /* (2) */
+            top: 0;
+            /* (2) */
+            z-index: 1;
+            /* (2) */
+            border-top: black solid 1px;
+            /* (3) */
+            background-color: red;
+            /* (3) */
+        }
+
+        #stickytab table tr *:first-child {
+            /* Cells of the first column */
+            position: sticky;
+            /* (2) */
+            left: 0;
+            /* (2) */
+            z-index: 2;
+            /* (2) */
+            border-left: black solid 1px;
+            /* (3) */
+            background-color: blue;
+            /* (3) */
+        }
+
+        #stickytab table tr:first-child th:first-child {
+            /* Top left cell */
+            z-index: 3;
+            /* (2) */
+            background-color: green;
+            /* (3) */
+        }
+    </style>
+</head>
+
+<body>
+    <div id="stickytab">
+        <table>
+            <thead>
+                <tr>
+                    <th>Color</th>
+                    <th>RGB</th>
+                    <th>HEX</th>
+                    <th>HSL</th>
+                    <th>BG</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>black</td>
+                    <td>0,0,0</td>
+                    <td>#000000</td>
+                    <td>0,0%,0%</td>
+                    <td>0</td>
+                </tr>
+                <tr>
+                    <td>gray</td>
+                    <td>128,128,128</td>
+                    <td>#808080</td>
+                    <td>0,0%,50.2%</td>
+                    <td>8421504</td>
+                </tr>
+                <tr>
+                    <td>silver</td>
+                    <td>192,192,192</td>
+                    <td>#C0C0C0</td>
+                    <td>0,0%,75.29%</td>
+                    <td>12632256</td>
+                </tr>
+                <tr>
+                    <td>white</td>
+                    <td>255,255,255</td>
+                    <td>#FFFFFF</td>
+                    <td>0,0%,100%</td>
+                    <td>16777215</td>
+                </tr>
+                <tr>
+                    <td>navy</td>
+                    <td>0,0,128</td>
+                    <td>#000080</td>
+                    <td>240,100%,25.1%</td>
+                    <td>128</td>
+                </tr>
+                <tr>
+                    <td>blue</td>
+                    <td>0,0,255</td>
+                    <td>#0000FF</td>
+                    <td>240,100%,50%</td>
+                    <td>255</td>
+                </tr>
+                <tr>
+                    <td>aqua</td>
+                    <td>0,255,255</td>
+                    <td>#00FFFF</td>
+                    <td>180,100%,50%</td>
+                    <td>65535</td>
+                </tr>
+                <tr>
+                    <td>green</td>
+                    <td>0,128,0</td>
+                    <td>#008000</td>
+                    <td>120,100%,25.1%</td>
+                    <td>32768</td>
+                </tr>
+                <tr>
+                    <td>teal</td>
+                    <td>0,128,128</td>
+                    <td>#008080</td>
+                    <td>180,100%,25.1%</td>
+                    <td>32896</td>
+                </tr>
+                <tr>
+                    <td>olive</td>
+                    <td>128,128,0</td>
+                    <td>#808000</td>
+                    <td>60,100%,25.1%</td>
+                    <td>8421376</td>
+                </tr>
+                <tr>
+                    <td>lime</td>
+                    <td>0,255,0</td>
+                    <td>#00FF00</td>
+                    <td>120,100%,50%</td>
+                    <td>65280</td>
+                </tr>
+                <tr>
+                    <td>yellow</td>
+                    <td>255,255,0</td>
+                    <td>#FFFF00</td>
+                    <td>60,100%,50%</td>
+                    <td>16776960</td>
+                </tr>
+                <tr>
+                    <td>maroon</td>
+                    <td>128,0,0</td>
+                    <td>#800000</td>
+                    <td>0,100%,25.1%</td>
+                    <td>8388608</td>
+                </tr>
+                <tr>
+                    <td>purple</td>
+                    <td>128,0,128</td>
+                    <td>#800080</td>
+                    <td>300,100%,25.1%</td>
+                    <td>8388736</td>
+                </tr>
+                <tr>
+                    <td>red</td>
+                    <td>255,0,0</td>
+                    <td>#FF0000</td>
+                    <td>0,100%,50%</td>
+                    <td>16711680</td>
+                </tr>
+                <tr>
+                    <td>orange</td>
+                    <td>255,165,0</td>
+                    <td>#FFA500</td>
+                    <td>38.82,100%,50%</td>
+                    <td>16753920</td>
+                </tr>
+                <tr>
+                    <td>fuchsia</td>
+                    <td>255,0,255</td>
+                    <td>#FF00FF</td>
+                    <td>300,100%,50%</td>
+                    <td>16711935</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+
+</html>
