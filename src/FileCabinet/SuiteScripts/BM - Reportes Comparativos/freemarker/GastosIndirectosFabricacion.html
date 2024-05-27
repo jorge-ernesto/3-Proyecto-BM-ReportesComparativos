@@ -1,0 +1,326 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+<#assign symbol='S/. ' />
+<#if (context.decimal='T' )>
+    <#setting number_format=",##0" />
+    <#else>
+        <#setting number_format=",##0.00" />
+</#if>
+<#function generateVariationPercent current last>
+    <#assign percent=0 />
+    <#attempt>
+
+        <#if (current> 0 && last = 0)>
+            <#assign percent=1 />
+            <#else>
+                <#assign percent=(current-last)/last />
+        </#if>
+
+        <#recover>
+            <#assign percent=0 />
+    </#attempt>
+    <#return percent />
+</#function>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.9.3/components/icon.min.css" />
+<div class="bm-viewer">
+    <div class="bm-viewer-action">
+        <i class="big file green excel icon" onclick="exportToExcel()" style="margin-left: 10px;"></i>
+        <span style="font-size: 18px;">|</span>
+        <i style="font-size: 15px;" class="expand arrows alternate icon" onclick="expandAllLines()"></i>
+        <i style="font-size: 15px;" class="compress arrows alternate icon" onclick="collapseAllLines()"></i>
+    </div>
+    <div class="bm-container">
+        <div class="bm-container-body">
+            <table class="bm-report-table">
+                <thead>
+                    <tr>
+                        <th>
+                            <span>Concepto</span>
+                        </th>
+                        <#list context.headers as header>
+                            <th class="right">
+                                ${header.current.text}
+                                <br>
+                                <b style="text-transform: none;">Monto ${symbol}</b>
+                            </th>
+                            <th class="right">
+                                ${header.last.text}
+                                <br>
+                                <b style="text-transform: none;">Monto ${symbol}</b>
+                            </th>
+                            <th class="right">
+                                <b style="text-transform: none;">Variación</b>
+                            </th>
+                            <th class="right">
+                                <b style="text-transform: none;">Var %</b>
+                            </th>
+                        </#list>
+                        <th class="right">
+                            ${context.summary.current.text}
+                            <br>
+                            <b style="text-transform: none;">Monto ${symbol}</b>
+                        </th>
+                        <th class="right">
+                            ${context.summary.last.text}
+                            <br>
+                            <b style="text-transform: none;">Monto ${symbol}</b>
+                        </th>
+                        <th class="right">
+                            <b style="text-transform: none;">Variación</b>
+                        </th>
+                        <th class="right">
+                            <b style="text-transform: none;">Var %</b>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <#list context.centers as center>
+                        <tr bm-parent="${center.id}">
+                            <td><i class="minus square icon" onclick="groupLines(this)"
+                                    bm-type="group"></i>${center.name}
+                            </td>
+                            <#list context.headers as header>
+                                <#assign current=center.period[header.current.id] />
+                                <#assign last=center.period[header.last.id] />
+                                <#assign var=current - last />
+                                <#assign p_var=generateVariationPercent(current,last) />
+                                <td class="right">
+                                    <div class="title hide">
+                                        <span class="bm-lbl" bm-period="${header.current.id}" bm-concept=""
+                                            bm-center="${center.id}">
+                                            ${current}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="right">
+                                    <div class="title hide">
+                                        <span class="bm-lbl" bm-period="${header.last.id}" bm-concept=""
+                                            bm-center="${center.id}">
+                                            ${last}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="right">
+                                    <div class="title hide">${var}</div>
+                                </td>
+                                <td class="right">
+                                    <div class="title hide">${p_var?string.percent}</div>
+                                </td>
+                            </#list>
+                            <td class="right">
+                                <div class="title hide">${center.current}</div>
+                            </td>
+                            <td class="right">
+                                <div class="title hide">${center.last}</div>
+                            </td>
+                            <#assign current=center.current />
+                            <#assign last=center.last />
+                            <#assign var=current - last />
+                            <#assign p_var=generateVariationPercent(current,last) />
+                            <td class="right">
+                                <div class="title hide">${var}</div>
+                            </td>
+                            <td class="right">
+                                <div class="title hide">${p_var?string.percent}</div>
+                            </td>
+                        </tr>
+                        <#list center.concepts as concept>
+                            <tr bm-child="${center.id}">
+                                <td style="padding-left:15px">${concept.name}
+                                </td>
+                                <#list context.headers as header>
+                                    <#assign current=concept.periods[header.current.id] />
+                                    <#assign last=concept.periods[header.last.id] />
+                                    <#assign var=current - last />
+                                    <#assign p_var=generateVariationPercent(current,last) />
+                                    <td class="right">
+                                        <span class="bm-lbl" bm-period="${header.current.id}"
+                                            bm-concept="${concept.name}" bm-center="${center.id}">
+                                            ${concept.periods[header.current.id]}
+                                        </span>
+                                    </td>
+                                    <td class="right">
+                                        <span class="bm-lbl" bm-period="${header.last.id}" bm-concept="${concept.name}"
+                                            bm-center="${center.id}">
+                                            ${concept.periods[header.last.id]}
+                                        </span>
+                                    </td>
+                                    <#if var < 0>
+                                        <td class="negative right">${var}</td>
+                                        <#else>
+                                            <td class="right">${var}</td>
+                                    </#if>
+                                    <td class="right">${p_var?string.percent}</td>
+                                </#list>
+                                <#assign current=concept.current />
+                                <#assign last=concept.last />
+                                <#assign var=current - last />
+                                <#assign p_var=generateVariationPercent(current,last) />
+                                <td class="right">${concept.current}</td>
+                                <td class="right">${concept.last}</td>
+                                <#if var < 0>
+                                    <td class="negative right">${var}</td>
+                                    <#else>
+                                        <td class="right">${var}</td>
+                                </#if>
+                                <td class="right">${p_var?string.percent}</td>
+                            </tr>
+                        </#list>
+                        <tr bm-child="${center.id}" class="summary-total">
+                            <td></i>Total</td>
+                            <#list context.headers as header>
+                                <#assign current=center.period[header.current.id] />
+                                <#assign last=center.period[header.last.id] />
+                                <#assign var=current - last />
+                                <#assign p_var=1 />
+                                <#assign p_var=generateVariationPercent(current,last) />
+                                <td class="right">
+                                    <span class="bm-lbl" bm-period="${header.current.id}" bm-concept=""
+                                        bm-center="${center.id}">
+                                        ${current}
+                                    </span>
+                                </td>
+                                <td class="right">
+                                    <span class="bm-lbl" bm-period="${header.last.id}" bm-concept=""
+                                        bm-center="${center.id}">
+                                        ${last}
+                                    </span>
+                                </td>
+                                <td class="right">${var}</td>
+                                <td class="right">${p_var?string.percent}</td>
+                            </#list>
+                            <td class="right">${center.current}</td>
+                            <td class="right">${center.last}</td>
+                            <#assign var=center.current - center.last />
+                            <#assign p_var=generateVariationPercent(center.current,center.last) />
+                            <td class="right">${var}</td>
+                            <td class="right">${p_var?string.percent}</td>
+                        </tr>
+                    </#list>
+                    <tr class="summary-total">
+                        <td>Report Comparativo (Total)</td>
+                        <#list context.headers as header>
+                            <#assign current=context.total[header.current.id] />
+                            <#assign last=context.total[header.last.id] />
+                            <#assign var=current - last />
+                            <#assign p_var=generateVariationPercent(current,last) />
+                            <td class="right">${current}</td>
+                            <td class="right">${last}</td>
+                            <td class="right">${var}</td>
+                            <td class="right">${p_var?string.percent}</td>
+                        </#list>
+                        <td class="right">${context.summary.current.amount}</td>
+                        <td class="right">${context.summary.last.amount}</td>
+                        <#assign current=context.summary.current.amount />
+                        <#assign last=context.summary.last.amount />
+                        <#assign var=current - last />
+                        <#assign p_var=generateVariationPercent(current,last) />
+                        <td class="right">${var}</td>
+                        <td class="right">${p_var?string.percent}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    function collapseAllLines() {
+        document.querySelectorAll('[bm-type="group"]').forEach(node => {
+            groupLines(node, 'F')
+        })
+    }
+
+    function expandAllLines() {
+        document.querySelectorAll('[bm-type="group"]').forEach(node => {
+            groupLines(node, 'T')
+        })
+    }
+
+    function groupLines(e, _collapse) {
+
+        let row = e.parentNode.parentNode;
+        let groupId = row.getAttribute('bm-parent');
+        let collapse = _collapse ? _collapse : row.getAttribute('collapse');
+
+        let children = document.querySelectorAll('[bm-child="' + groupId + '"]')
+        let titleColumns = row.querySelectorAll(`.title`);
+
+        if (collapse == 'T') {
+            e.classList.remove('plus');
+            e.classList.add('minus');
+            row.setAttribute('collapse', 'F');
+            children.forEach(current => {
+                current.style.display = '';
+            });
+            titleColumns.forEach(current => {
+                current.classList.add('hide');
+            })
+
+        } else {
+            e.classList.remove('minus');
+            e.classList.add('plus');
+            row.setAttribute('collapse', 'T');
+            children.forEach(current => {
+                current.style.display = 'none';
+            });
+            titleColumns.forEach(current => {
+                current.classList.remove('hide');
+            })
+        }
+    }
+
+
+    var bmPathURI = new URL(window.location.href);
+
+    document.querySelectorAll('.bm-lbl').forEach(node => {
+
+        node.addEventListener('click', () => {
+
+            require(['N/url'], function (url) {
+
+                let period = node.getAttribute('bm-period');
+                let concept = node.getAttribute('bm-concept');
+                let center = node.getAttribute('bm-center');
+                let report = bmPathURI.searchParams.get('report');
+                let subsidiary = bmPathURI.searchParams.get('subsidiary');
+
+                let bmPathDetailsURI = url.resolveScript({
+                    deploymentId: 'customdeploy_bm_comp_report_det_suitelet',
+                    scriptId: 'customscript_bm_comp_report_det_suitelet',
+                    params: {
+                        period: period,
+                        class: center,
+                        concept: concept,
+                        subsidiary: subsidiary,
+                        view: report
+                    }
+                });
+
+                window.location.href = bmPathDetailsURI;
+
+            })
+
+        })
+
+    });
+
+    function exportToExcel() {
+
+        const xlsHref = window.location.href + '&xls=T';
+
+        const a = document.createElement('a');
+        a.href = xlsHref;
+
+        // Añade el enlace al documento y haz clic en él para descargar
+        document.body.appendChild(a);
+        a.click();
+
+        // Limpia el objeto URL y elimina el enlace
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+    }
+
+
+</script>
